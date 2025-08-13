@@ -1,0 +1,13 @@
+http://localhost:8080 {
+    bind 0.0.0.0
+    rewrite /web /web/
+    rewrite /api /api/
+    handle /web/* {
+        root /web/* /srv
+        try_files {path} /web/index.html
+        file_server
+    }
+    handle /api/* {
+        reverse_proxy server:3000
+    }
+}

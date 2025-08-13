@@ -1,0 +1,14 @@
+{
+  "name": "api-model",
+  "version": "1.0.0",
+  "description": "API model for type-sharing between frontend and backend",
+  "main": "index.ts",
+  "private": true,
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@elysiajs/eden": "^1.3.2",
+    "dotenv": "^17.2.1",
+    "server": "*"
+  }
+}

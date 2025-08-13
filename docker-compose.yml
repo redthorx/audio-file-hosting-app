@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  db:
+    image: docker.io/postgres:17.5
+    restart: always 
+    environment:
+      POSTGRES_DB: audio_app
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432" 
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./apps/db/postgresql.conf:/etc/postgresql.conf:ro
+    command: -c config_file=/etc/postgresql.conf
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "db_prod"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+      
+  storage:
+    image: docker.io/minio/minio:latest
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address "0.0.0.0:9001" --address "storage:9000"
+    ports:
+      - "9000:9000" # S3 API access
+      - "9001:9001" # MinIO Console access
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://127.0.0.1:9000/minio/health/live']
+      interval: 10s
+      start_interval: 1s
+      start_period: 10s
+
+  createBuckets: #to create starting buckets
+    image: docker.io/minio/minio:latest
+    depends_on:
+      - storage
+    restart: on-failure
+    volumes:
+      - minio-data:/data
+    entrypoint: >
+      /bin/sh -c '
+        sleep 5                                                             # wait until Minio is alive
+        echo "MinIO is ready. Proceeding with setup..."
+        mc alias set myminio http://storage:9000 minioadmin minioadmin
+        mc mb myminio/audio/ --ignore-existing                               # create test bucket
+        exit 0
+      '
+  server:
+    build:
+      context: .
+      dockerfile: ./apps/server/Dockerfile
+    container_name: server
+    restart: always 
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./apps/server/.env.example   #change if required
+  
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    container_name: web
+    ports:
+     - "8080:8080"
+    volumes:
+      - ./apps/webserver/Caddyfile:/etc/caddy/Caddyfile:ro
+    
+
+
+
+volumes:
+  pgdata: 
+  minio-data:
