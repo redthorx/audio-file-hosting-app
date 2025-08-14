@@ -40,7 +40,7 @@ services:
     restart: on-failure
     volumes:
       - minio-data:/data
-    entrypoint: >
+    entrypoint: > #Init the buckets
       /bin/sh -c '
         sleep 5                                                             # wait until Minio is alive
         echo "MinIO is ready. Proceeding with setup..."
