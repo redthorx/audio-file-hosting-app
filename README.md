@@ -14,7 +14,7 @@ Finally, run `turbo dev` in the root directly, and all services should be runnin
 
 ## Running in Docker-compose
 
-The services are self-encapsulated. Just run `docker-compose build && docker-compose run` to start all the services.
+The services are self-encapsulated. Just run `docker-compose build && docker-compose up` to start all the services.
 
 However, the DB will have to be seeded. The database init scripts are in `/scripts/db_init.sql`
 

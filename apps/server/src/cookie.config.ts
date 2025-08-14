@@ -5,6 +5,5 @@ export const cookieConfig : CookieOptions & {
 }={
     expires: new Date(Date.now()+SESSION_COOKIE_EXPIRES),
     httpOnly:true,
-    secrets:SECRET_KEY,
-    sign:['username','exp']
+    secrets:SECRET_KEY
 }
